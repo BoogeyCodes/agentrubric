@@ -44,6 +44,25 @@ def test_ties_share_a_rank_and_are_flagged():
     assert scored.runs[2].rank == 3 and not scored.runs[2].tied
 
 
+def test_margin_measures_the_gap_to_the_runner_up():
+    scored = score_evaluation(Evaluation("t", [run("high", 5), run("low", 2), run("mid", 3)]))
+    assert scored.margin == 2.0  # 5.0 - 3.0
+    assert not scored.is_close
+
+
+def test_close_rankings_are_flagged():
+    evaluation = Evaluation("t", [run("a", 4), run("b", 4, correctness=5)])
+    scored = score_evaluation(evaluation)
+    assert scored.margin < 0.3
+    assert scored.is_close
+
+
+def test_margin_is_zero_for_a_single_run():
+    scored = score_evaluation(Evaluation("t", [run("solo", 4)]))
+    assert scored.margin == 0.0
+    assert not scored.is_close
+
+
 def test_validation_catches_bad_input():
     with pytest.raises(EvaluationError):
         score_evaluation(Evaluation("t", []))  # no runs

@@ -27,6 +27,21 @@ class ScoredEvaluation:
     def winner(self) -> RankedRun:
         return self.runs[0]
 
+    @property
+    def margin(self) -> float:
+        """Gap between the top run's overall and the runner-up's (0.0 with fewer than two runs).
+
+        A small margin means the ranking was close and the rationale deserves a second look.
+        """
+        if len(self.runs) < 2:
+            return 0.0
+        return round(self.runs[0].overall - self.runs[1].overall, 1)
+
+    @property
+    def is_close(self) -> bool:
+        """True when the top two runs are within 0.3 of each other on the 1-5 scale."""
+        return len(self.runs) >= 2 and self.margin < 0.3
+
 
 def weighted_overall(run: RunRating, rubric: Rubric) -> float:
     """The weighted average of a run's dimension scores, on the 1-5 scale, rounded to one decimal."""
