@@ -88,10 +88,14 @@ from agentrubric.report import to_markdown
 evaluation = load_evaluation("evaluation.json")
 scored = score_evaluation(evaluation)
 print(scored.winner.agent, scored.winner.overall)
+if scored.is_close:
+    print(f"Close call — only {scored.margin} between the top two runs.")
 print(to_markdown(scored, evaluation.rubric))
 ```
 
 You can supply your own `Rubric` (different dimensions or weights) instead of the default.
+
+See [CHANGELOG.md](CHANGELOG.md) for notable changes.
 
 ## Testing
 
