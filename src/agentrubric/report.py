@@ -1,7 +1,9 @@
-"""Render a scored evaluation as Markdown or JSON."""
+"""Render a scored evaluation as Markdown, JSON or CSV."""
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 
 from agentrubric.rubric import Rubric
@@ -44,6 +46,22 @@ def to_markdown(scored: ScoredEvaluation, rubric: Rubric) -> str:
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"
+
+
+def to_csv(scored: ScoredEvaluation, rubric: Rubric) -> str:
+    """The score matrix as CSV: a dimension per row, an agent per column, then overall and rank.
+
+    Handy for pulling a batch of evaluations into a spreadsheet for aggregate analysis.
+    """
+    out = io.StringIO()
+    writer = csv.writer(out, lineterminator="\n")
+    agents = [r.agent for r in scored.runs]
+    writer.writerow(["dimension", "weight", *agents])
+    for dim in rubric.dimensions:
+        writer.writerow([dim.name, f"{dim.weight:g}", *(r.scores[dim.key] for r in scored.runs)])
+    writer.writerow(["overall", "", *(f"{r.overall:.1f}" for r in scored.runs)])
+    writer.writerow(["rank", "", *(r.rank for r in scored.runs)])
+    return out.getvalue()
 
 
 def to_json(scored: ScoredEvaluation) -> str:

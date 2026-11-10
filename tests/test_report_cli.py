@@ -5,7 +5,7 @@ from pathlib import Path
 
 from agentrubric.cli import main
 from agentrubric.models import load_evaluation
-from agentrubric.report import to_json, to_markdown
+from agentrubric.report import to_csv, to_json, to_markdown
 from agentrubric.scoring import score_evaluation
 
 EXAMPLE = Path(__file__).resolve().parent.parent / "examples" / "auth-fix.json"
@@ -22,6 +22,21 @@ def test_markdown_report_has_matrix_ranking_and_rationale():
     assert "**Overall (1-5)**" in md
     assert "## Rationale" in md
     assert "agent-alpha" in md and "agent-bravo" in md and "agent-charlie" in md
+
+
+def test_csv_report_has_a_row_per_dimension_and_agent_columns():
+    import csv
+    import io
+
+    evaluation = load_evaluation(EXAMPLE)
+    scored = score_evaluation(evaluation)
+    rows = list(csv.reader(io.StringIO(to_csv(scored, evaluation.rubric))))
+
+    assert rows[0] == ["dimension", "weight", "agent-alpha", "agent-bravo", "agent-charlie"]
+    assert rows[-1][0] == "rank"
+    assert rows[-2][0] == "overall"
+    # one header + one row per dimension + overall + rank
+    assert len(rows) == 1 + len(evaluation.rubric.dimensions) + 2
 
 
 def test_json_report_round_trips():
