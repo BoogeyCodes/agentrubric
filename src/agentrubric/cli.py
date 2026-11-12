@@ -25,12 +25,32 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("rubric", help="print the default rubric")
 
+    serve = sub.add_parser("serve", help="run the web dashboard + REST API (needs the [web] extra)")
+    serve.add_argument("--db", default="agentrubric.db", help="SQLite file to store evaluations in")
+    serve.add_argument("--host", default="127.0.0.1", help="interface to bind (default: 127.0.0.1)")
+    serve.add_argument("--port", type=int, default=8000, help="port to listen on (default: 8000)")
+
     args = parser.parse_args(argv)
 
     if args.command == "rubric":
         print(f"Default rubric ({len(DEFAULT_RUBRIC.dimensions)} dimensions):\n")
         for d in DEFAULT_RUBRIC.dimensions:
             print(f"  {d.key:<22} weight {d.weight:>4g}  {d.description}")
+        return 0
+
+    if args.command == "serve":
+        try:
+            import uvicorn
+
+            from agentrubric.service import create_app
+        except ImportError:
+            print(
+                "agentrubric: the web server needs the optional extra. Install it with:\n"
+                "    pip install 'agentrubric[web]'",
+                file=sys.stderr,
+            )
+            return 2
+        uvicorn.run(create_app(args.db), host=args.host, port=args.port)
         return 0
 
     if args.command == "score":
