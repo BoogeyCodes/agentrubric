@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ scored.task or 'Evaluation' }} — agentrubric{% endblock %}
+{% block body %}
+<p class="sub"><a href="/">&larr; Dashboard</a></p>
+<h1>{{ scored.task or 'Untitled evaluation' }}</h1>
+<p class="sub">
+  Winner <span class="rank1">{{ scored.winner.agent }}</span>
+  ({{ 'tied for 1st' if scored.winner.tied else 'ranked 1st' }}, {{ '%.1f' | format(scored.winner.overall) }}/5)
+  {% if scored.runs | length > 1 %}
+    · margin <span class="{{ 'close' if scored.is_close else '' }}">{{ '%.1f' | format(scored.margin) }}</span>
+    {% if scored.is_close %}<span class="chip close">close call — recheck rationale</span>{% endif %}
+  {% endif %}
+</p>
+
+<div class="panel exports">
+  Export:
+  <a href="/evaluations/{{ stored.id }}.md">Markdown</a>
+  <a href="/evaluations/{{ stored.id }}.json">JSON</a>
+  <a href="/evaluations/{{ stored.id }}.csv">CSV</a>
+  <form method="post" action="/evaluations/{{ stored.id }}/delete" style="display:inline; float:right"
+        onsubmit="return confirm('Delete this evaluation?')">
+    <button class="btn danger" type="submit">Delete</button>
+  </form>
+</div>
+
+<h2>Score matrix</h2>
+<div class="panel">
+  <table>
+    <thead>
+      <tr>
+        <th>Dimension</th><th class="num">Weight</th>
+        {% for r in scored.runs %}<th class="num">{{ r.agent }}</th>{% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for dim in rubric.dimensions %}
+      <tr>
+        <td title="{{ dim.description }}">{{ dim.name }}</td>
+        <td class="num muted">{{ '%g' | format(dim.weight) }}</td>
+        {% for r in scored.runs %}<td class="num">{{ r.scores[dim.key] }}</td>{% endfor %}
+      </tr>
+      {% endfor %}
+      <tr>
+        <td><strong>Overall (1-5)</strong></td><td></td>
+        {% for r in scored.runs %}<td class="num"><strong>{{ '%.1f' | format(r.overall) }}</strong></td>{% endfor %}
+      </tr>
+      <tr>
+        <td><strong>Rank</strong></td><td></td>
+        {% for r in scored.runs %}<td class="num {{ 'rank1' if r.rank == 1 else '' }}">{{ r.rank }}{{ '=' if r.tied else '' }}</td>{% endfor %}
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Rationale</h2>
+{% for r in scored.runs %}
+<div class="panel">
+  <div class="row">
+    <strong class="{{ 'rank1' if r.rank == 1 else '' }}">#{{ r.rank }}{{ ' (tie)' if r.tied else '' }} — {{ r.agent }}</strong>
+    <span class="chip">{{ '%.1f' | format(r.overall) }}/5</span>
+  </div>
+  <p style="margin:8px 0 0">{{ r.rationale or 'No rationale provided.' }}</p>
+</div>
+{% endfor %}
+{% endblock %}

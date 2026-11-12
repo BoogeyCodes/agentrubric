@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}agentrubric — dashboard{% endblock %}
+{% block body %}
+<h1>Evaluation dashboard</h1>
+<p class="sub">{{ total }} evaluation{{ '' if total == 1 else 's' }} scored · agents ranked across every run.</p>
+
+<h2>Leaderboard</h2>
+<div class="panel">
+  {% if leaderboard %}
+  <table>
+    <thead>
+      <tr><th>#</th><th>Agent</th><th class="num">Evals</th><th class="num">Wins</th><th class="num">Win rate</th><th class="num">Avg (1-5)</th><th>Range</th></tr>
+    </thead>
+    <tbody>
+      {% for row in leaderboard %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td><strong>{{ row.agent }}</strong></td>
+        <td class="num">{{ row.evaluations }}</td>
+        <td class="num">{{ row.wins }}</td>
+        <td class="num">{{ (row.win_rate * 100) | round(0) | int }}%</td>
+        <td class="num"><strong>{{ '%.2f' | format(row.average) }}</strong></td>
+        <td>
+          <div class="row">
+            <div class="bar" title="{{ row.worst }}–{{ row.best }}"><i style="width: {{ (row.average / 5 * 100) | round(0) | int }}%"></i></div>
+            <span class="muted">{{ '%.1f' | format(row.worst) }}–{{ '%.1f' | format(row.best) }}</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No evaluations yet. Submit one below to start the leaderboard.</div>
+  {% endif %}
+</div>
+
+<h2>Submit an evaluation</h2>
+<div class="panel">
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+  <form method="post" action="/submit">
+    <textarea name="payload" placeholder='{"task": "...", "runs": [{"agent": "...", "scores": {...}, "rationale": "..."}]}' spellcheck="false">{{ payload or '' }}</textarea>
+    <div class="row" style="margin-top:10px">
+      <button type="submit">Score &amp; save</button>
+      <span class="muted">A task plus rated runs. See <a href="/api/rubric">the rubric</a> for the ten dimensions.</span>
+    </div>
+  </form>
+</div>
+
+<h2>Recent evaluations</h2>
+<div class="panel">
+  {% if evaluations %}
+  <table>
+    <thead><tr><th>#</th><th>Task</th><th>Winner</th><th class="num">Runs</th><th class="num">Margin</th><th>When</th></tr></thead>
+    <tbody>
+      {% for e in evaluations %}
+      <tr>
+        <td>{{ e.id }}</td>
+        <td><a href="/evaluations/{{ e.id }}">{{ e.task or 'Untitled evaluation' }}</a></td>
+        <td><span class="rank1">{{ e.winner }}</span></td>
+        <td class="num">{{ e.run_count }}</td>
+        <td class="num {{ 'close' if e.margin < 0.3 and e.run_count > 1 else '' }}">{{ '%.1f' | format(e.margin) }}</td>
+        <td class="muted">{{ e.created_at.replace('T', ' ')[:16] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">Nothing scored yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

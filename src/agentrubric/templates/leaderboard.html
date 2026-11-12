@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard — agentrubric{% endblock %}
+{% block body %}
+<p class="sub"><a href="/">&larr; Dashboard</a></p>
+<h1>Agent leaderboard</h1>
+<p class="sub">Every agent aggregated across {{ total }} evaluation{{ '' if total == 1 else 's' }}, best average first.</p>
+
+<div class="panel">
+  {% if leaderboard %}
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Agent</th><th class="num">Evaluations</th><th class="num">Wins</th>
+        <th class="num">Win rate</th><th class="num">Average</th><th class="num">Best</th><th class="num">Worst</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in leaderboard %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td><strong>{{ row.agent }}</strong></td>
+        <td class="num">{{ row.evaluations }}</td>
+        <td class="num">{{ row.wins }}</td>
+        <td class="num">{{ (row.win_rate * 100) | round(0) | int }}%</td>
+        <td class="num"><strong>{{ '%.2f' | format(row.average) }}</strong></td>
+        <td class="num">{{ '%.1f' | format(row.best) }}</td>
+        <td class="num">{{ '%.1f' | format(row.worst) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No evaluations yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}agentrubric{% endblock %}</title>
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    :root {
+      --bg: #f7f8fa; --panel: #ffffff; --ink: #1b1f24; --muted: #5b6672;
+      --border: #e3e7ec; --accent: #3b82f6; --accent-ink: #ffffff;
+      --good: #15803d; --warn: #b45309; --bad: #b91c1c; --chip: #eef2f7;
+      --shadow: 0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0e1116; --panel: #161b22; --ink: #e6edf3; --muted: #8b949e;
+        --border: #262c34; --accent: #4c8dff; --accent-ink: #0e1116;
+        --good: #3fb950; --warn: #d29922; --bad: #f85149; --chip: #1c2430;
+        --shadow: none;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header.top {
+      background: var(--panel); border-bottom: 1px solid var(--border);
+      padding: 14px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    header.top .brand { font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+    header.top .brand span { color: var(--accent); }
+    header.top nav { display: flex; gap: 14px; margin-left: auto; }
+    main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -.01em; }
+    h2 { font-size: 16px; margin: 28px 0 10px; }
+    .sub { color: var(--muted); margin: 0 0 20px; }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px; box-shadow: var(--shadow); margin-bottom: 20px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:last-child td { border-bottom: none; }
+    .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--chip); color: var(--muted); font-size: 12px; }
+    .rank1 { color: var(--good); font-weight: 700; }
+    .bar { height: 8px; border-radius: 999px; background: var(--chip); overflow: hidden; min-width: 70px; }
+    .bar > i { display: block; height: 100%; background: var(--accent); }
+    .muted { color: var(--muted); }
+    .close { color: var(--warn); }
+    textarea {
+      width: 100%; min-height: 160px; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+      resize: vertical;
+    }
+    button, .btn {
+      font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--border);
+      background: var(--accent); color: var(--accent-ink); border-color: transparent;
+      padding: 8px 14px; border-radius: 8px;
+    }
+    button.ghost, .btn.ghost { background: transparent; color: var(--ink); border-color: var(--border); }
+    .btn.danger { background: transparent; color: var(--bad); border-color: var(--border); padding: 4px 10px; font-size: 13px; }
+    .error { background: color-mix(in srgb, var(--bad) 12%, transparent); border: 1px solid var(--bad); color: var(--bad); padding: 10px 12px; border-radius: 8px; margin-bottom: 14px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .exports a { font-size: 13px; margin-right: 10px; }
+    .empty { color: var(--muted); padding: 24px; text-align: center; }
+    footer { color: var(--muted); font-size: 12px; text-align: center; padding: 24px 16px; }
+    code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><a href="/" style="color:inherit"><span>agent</span>rubric</a></div>
+    <nav>
+      <a href="/">Dashboard</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <a href="/docs">API</a>
+    </nav>
+  </header>
+  <main>
+    {% block body %}{% endblock %}
+  </main>
+  <footer>agentrubric v{{ version }} — scoring AI coding agents against a quality rubric</footer>
+</body>
+</html>
