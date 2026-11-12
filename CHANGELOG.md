@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- `report.to_csv` — export the score matrix (a dimension per row, an agent per column,
+  then overall and rank) for pulling batches of evaluations into a spreadsheet.
 - `ScoredEvaluation.margin` — the gap between the top run's overall and the
   runner-up's, so a reviewer can see at a glance whether a ranking was decisive.
 - `ScoredEvaluation.is_close` — flags evaluations where the top two runs are
