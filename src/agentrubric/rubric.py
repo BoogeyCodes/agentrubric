@@ -46,6 +46,30 @@ class Rubric:
         raise KeyError(key)
 
 
+def rubric_to_dict(rubric: Rubric) -> dict:
+    """Serialise a rubric to a plain dict (for storing alongside an evaluation)."""
+    return {
+        "dimensions": [
+            {"key": d.key, "name": d.name, "description": d.description, "weight": d.weight}
+            for d in rubric.dimensions
+        ]
+    }
+
+
+def rubric_from_dict(data: dict) -> Rubric:
+    """Rebuild a rubric from :func:`rubric_to_dict` output."""
+    dims = tuple(
+        Dimension(
+            key=str(d["key"]),
+            name=str(d.get("name", d["key"])),
+            description=str(d.get("description", "")),
+            weight=float(d.get("weight", 1.0)),
+        )
+        for d in data["dimensions"]
+    )
+    return Rubric(dimensions=dims)
+
+
 # The ten quality areas an agent run is judged on.
 DEFAULT_RUBRIC = Rubric(
     dimensions=(
